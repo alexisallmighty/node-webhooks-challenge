@@ -1,21 +1,39 @@
-// example callback_url: https://node-webhooks-challenge-serverless-function.vercel.app/api/webhooks/nylas
-export default function handler(request, response) {
-  
-  // /api/webhooks/nylas?challenge={{CHALLENGE_STRING}}
-  if (request.method === "GET" && request.query.challenge) {
-    console.log(`Received challenge code! - ${request.query.challenge}`);
-    console.log(`Now returning challenge code! - ${request.query.challenge}`);
-    // we need to enable the webhook by responding with the challenge parameter
-    // CHALLENGE_STRING
-    return response.send(request.query.challenge);
-  }
+// sync-google-calendar-outlook/pages/api/nylas_callback.js
+export default function handler(req, res) {
+  console.log("req.query.code", req.query.code);
 
- if (request.method === "POST") {
-   console.log('==========Message updated start==========');
-   request.body.deltas.map(deltas => console.log(JSON.stringify(deltas)));
-   console.log('==========Message updated end==========\n');
-   // Responding to Nylas is important to prevent the webhook from retrying
-   return response.status(200).end();
- }
+  const client_id = process.env.NYLAS_CLIENT_ID;
+  const client_secret = process.env.NYLAS_CLIENT_SECRET;
+  const bearerToken = process.env.NYLAS_API_KEY;
+  const code = req.query.code;
 
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
+  headers.append("Accept", "application/json");
+  headers.append("Authorization", `Bearer ${bearerToken}`);
+
+  const raw = JSON.stringify({
+    code: req.query.code,
+    client_id: client_id,
+    client_secret: client_secret,
+    redirect_uri: redirect_uri,
+    grant_type: "authorization_code",
+  });
+
+  const requestOptions = {
+    method: "POST",
+    headers: headers,
+    body: raw,
+    redirect: "follow",
+  };
+
+  fetch("https://api.us.nylas.com/v3/connect/token", requestOptions)
+    .then((response) => {
+      return response.json();
+    })
+    .then((userData) => {
+      const email = userData.email_address;
+      const accessToken = userData.access_token;
+    })
+    .catch((error) => console.log("error", error));
 }
