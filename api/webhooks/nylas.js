@@ -1,6 +1,6 @@
 // sync-google-calendar-outlook/pages/api/nylas_callback.js
 export default function handler(req, res) {
-  console.log("req.query.code", req.query.code);
+  console.log("req.query", req.query);
 
   const client_id = process.env.NYLAS_CLIENT_ID;
   const client_secret = process.env.NYLAS_CLIENT_SECRET;
