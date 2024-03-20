@@ -5,6 +5,8 @@ export default function handler(req, res) {
   const client_id = process.env.NYLAS_CLIENT_ID;
   const client_secret = process.env.NYLAS_CLIENT_SECRET;
   const bearerToken = process.env.NYLAS_API_KEY;
+  const redirect_uri = process.env.REDIRECT_URI;
+
   const code = req.query.code;
 
   const headers = new Headers();
